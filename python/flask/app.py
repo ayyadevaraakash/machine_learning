@@ -18,18 +18,20 @@ def get_or_post_player():
         players.append({'id':id,'name':name,'role':role})
     return jsonify(players)
 
-@app.route('/players/<int:id>', methods=['PUT'])
+@app.route('/players/<int:id>', methods=['PUT', 'DELETE'])
 def modify_player_data(id):
+    res = [i for i in range(len(players)) if players[i]['id']==id]
+    idx = res[0] if res else -1
+    if idx == -1:
+        return "Player does not exists"
     if request.method == 'PUT':
         data = request.get_json()
-        res = [i for i in range(len(players)) if players[i]['id']==id]
-        idx = res[0] if res else -1
-        if idx == -1:
-            return "Incorrect ID"
-        else:
-            players[idx]['name'] = data.get('name', players[idx]['name'])
-            players[idx]['role'] = data.get('role', players[idx]['role'])
+        players[idx]['name'] = data.get('name', players[idx]['name'])
+        players[idx]['role'] = data.get('role', players[idx]['role'])
         return jsonify(players[idx])
+    elif request.method == 'DELETE':
+        del players[idx]
+        return "Player Deleted"
 
 if __name__=='__main__':
     app.run(debug=True)
